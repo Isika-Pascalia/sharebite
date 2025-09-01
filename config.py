@@ -1,12 +1,14 @@
 import mysql.connector
 from mysql.connector import Error
 
+
 class Config:
     SECRET_KEY = "your_super_secret_key"  # Change to something strong!
-    DB_HOST = "localhost"
+    DB_HOST = ""
     DB_USER = "root"       # Change if different
     DB_PASSWORD = "1234567890"  # Set your MySQL password
     DB_NAME = "sharebite_db"
+
 
 def get_db_connection():
     """Establish MySQL database connection"""
@@ -22,12 +24,13 @@ def get_db_connection():
         print(f"Database connection failed: {e}")
         return None
 
+
 def init_database():
     """Initialize tables if they don't exist"""
     connection = get_db_connection()
     if connection:
         cursor = connection.cursor()
-        
+
         # Create users table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -38,7 +41,7 @@ def init_database():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
         # Create food donations table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS food_donations (
@@ -54,7 +57,7 @@ def init_database():
                 FOREIGN KEY (donor_id) REFERENCES users(id)
             )
         """)
-        
+
         connection.commit()
         cursor.close()
         connection.close()
