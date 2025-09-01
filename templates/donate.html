@@ -1,0 +1,51 @@
+
+{% extends "base.html" %}
+
+{% block title %}Donate Food - ShareBite{% endblock %}
+
+{% block content %}
+<div class="donate-container">
+    <div class="donate-card">
+        <h2>Donate Food</h2>
+        <p class="donate-description">Help reduce food waste by sharing your surplus food with those in need.</p>
+        
+        <form method="POST" class="donate-form">
+            <div class="form-group">
+                <label for="food_name">Food Item:</label>
+                <input type="text" id="food_name" name="food_name" required class="form-input" 
+                       placeholder="e.g., Fresh vegetables, Cooked rice, Bread">
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="text" id="quantity" name="quantity" required class="form-input" 
+                       placeholder="e.g., 5 servings, 2 loaves, 3 kg">
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Pickup Location:</label>
+                <input type="text" id="location" name="location" required class="form-input" 
+                       placeholder="e.g., Downtown area, 123 Main St, Near City Center">
+            </div>
+            
+            <div class="form-group">
+                <label for="contact_info">Contact Information:</label>
+                <input type="text" id="contact_info" name="contact_info" required class="form-input" 
+                       placeholder="e.g., +254 700 123456, john@email.com">
+            </div>
+            
+            <button type="submit" class="donate-btn">Post Food Donation</button>
+        </form>
+        
+        <div class="donate-tips">
+            <h3>Donation Tips:</h3>
+            <ul>
+                <li>Only donate food that is safe and fresh</li>
+                <li>Provide clear pickup instructions</li>
+                <li>Be responsive to those who claim your donations</li>
+                <li>Consider food allergies and dietary restrictions</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

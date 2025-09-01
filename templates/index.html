@@ -1,0 +1,65 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>Welcome to ShareBite</h1>
+    <p>Connect food donors with those in need. Reduce waste, share abundance.</p>
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search food by name or location..." class="search-input">
+        <button onclick="clearSearch()" class="clear-btn">Clear</button>
+    </div>
+</div>
+
+<!-- Food Listings -->
+<div class="section-header">
+    <h2>Available Food Donations</h2>
+    {% if not session.username %}
+        <p class="login-prompt"><a href="{{ url_for('login') }}">Login</a> to claim food items</p>
+    {% endif %}
+</div>
+
+<div id="foodContainer" class="food-container">
+    {% if food_items %}
+        {% for item in food_items %}
+        <div class="food-card" data-food-name="{{ item.food_name.lower() }}" data-location="{{ item.location.lower() }}">
+            <div class="card-header">
+                <h3 class="food-name">{{ item.food_name }}</h3>
+                <span class="quantity">{{ item.quantity }}</span>
+            </div>
+            <div class="card-body">
+                <p class="location"><strong>📍 Location:</strong> {{ item.location }}</p>
+                <p class="donor"><strong>👤 Donor:</strong> {{ item.donor_name }}</p>
+                <p class="contact"><strong>📞 Contact:</strong> {{ item.contact_info }}</p>
+                <p class="posted"><strong>🕒 Posted:</strong> {{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            <div class="card-footer">
+                {% if session.username %}
+                    <button onclick="claimFood({{ item.id }})" class="claim-btn" id="claim-btn-{{ item.id }}">
+                        Claim This Food
+                    </button>
+                {% else %}
+                    <button class="claim-btn disabled" disabled>Login to Claim</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-food">
+            <p>No food donations available at the moment.</p>
+            {% if session.username %}
+                <a href="{{ url_for('donate') }}" class="donate-link">Be the first to donate!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<div id="noResults" class="no-results" style="display: none;">
+    <p>No food items match your search.</p>
+</div>
+{% endblock %}
+"""
