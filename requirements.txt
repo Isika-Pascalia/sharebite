@@ -1,19 +1,14 @@
 Flask==2.3.2
-mysql-connector-python==8.1.0
+# mysql-connector-python==8.1.0
 Werkzeug==2.3.6
 Jinja2==3.1.2
 itsdangerous==2.1.2
 click==8.1.3
 numpy>=1.25.0
+psycopg2-binary==2.9.7
+
 
 # Flask==2.3.2
 # mysql-connector-python==8.0.34
 gunicorn==20.1.0
 
-render services create web \
-  --name share-bite \
-  --repo https://github.com/Isika-Pascalia/sharebite \
-  --branch main \
-  --env python3 \
-  --build-command "pip install -r requirements.txt" \
-  --start-command "gunicorn app:app"
