@@ -58,26 +58,26 @@
 #         connection.commit()
 #         cursor.close()
 #         connection.close()
-
 import os
-import psycopg2
-from psycopg2 import OperationalError
+import psycopg
+
 
 class Config:
-    # Secret key for your Flask app
+    # Flask secret key
     SECRET_KEY = os.getenv("SECRET_KEY", "your_super_secret_key")
 
-    # PostgreSQL database configuration
-    DB_HOST = os.getenv("DB_HOST")          # e.g., postgres-xxxxx.onrender.com
-    DB_USER = os.getenv("DB_USER")          # your database user
+    # PostgreSQL database configuration from environment variables
+    DB_HOST = os.getenv("DB_HOST")      # e.g., postgres-xxxxx.onrender.com
+    DB_USER = os.getenv("DB_USER")      # your database user
     DB_PASSWORD = os.getenv("DB_PASSWORD")  # your database password
-    DB_NAME = os.getenv("DB_NAME")          # your database name
+    DB_NAME = os.getenv("DB_NAME")      # your database name
     DB_PORT = os.getenv("DB_PORT", 5432)    # default PostgreSQL port
 
+
 def get_db_connection():
-    """Establish PostgreSQL database connection"""
+    """Establish a PostgreSQL database connection"""
     try:
-        connection = psycopg2.connect(
+        connection = psycopg.connect(
             host=Config.DB_HOST,
             user=Config.DB_USER,
             password=Config.DB_PASSWORD,
@@ -85,42 +85,40 @@ def get_db_connection():
             port=Config.DB_PORT
         )
         return connection
-    except OperationalError as e:
+    except Exception as e:
         print(f"Database connection failed: {e}")
         return None
 
+
 def init_database():
     """Initialize tables if they don't exist"""
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        
-        # Create users table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(100) UNIQUE NOT NULL,
-                email VARCHAR(150) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        
-        # Create food donations table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS food_donations (
-                id SERIAL PRIMARY KEY,
-                food_name VARCHAR(200) NOT NULL,
-                quantity VARCHAR(50) NOT NULL,
-                location VARCHAR(255) NOT NULL,
-                contact_info VARCHAR(255) NOT NULL,
-                donor_id INT NOT NULL REFERENCES users(id),
-                is_claimed BOOLEAN DEFAULT FALSE,
-                claimed_by INT DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        
-        connection.commit()
-        cursor.close()
-        connection.close()
+    conn = get_db_connection()
+    if conn:
+        with conn.cursor() as cursor:
+            # Create users table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    email VARCHAR(150) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            # Create food donations table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS food_donations (
+                    id SERIAL PRIMARY KEY,
+                    food_name VARCHAR(200) NOT NULL,
+                    quantity VARCHAR(50) NOT NULL,
+                    location VARCHAR(255) NOT NULL,
+                    contact_info VARCHAR(255) NOT NULL,
+                    donor_id INT NOT NULL REFERENCES users(id),
+                    is_claimed BOOLEAN DEFAULT FALSE,
+                    claimed_by INT DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        conn.commit()
+        conn.close()
