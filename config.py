@@ -1,55 +1,60 @@
+import os
 import mysql.connector
 from mysql.connector import Error
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
-    SECRET_KEY = "your_super_secret_key"  # Change to something strong!
-    DB_HOST = "localhost"
-    DB_USER = "root"       # Change if different
-    DB_PASSWORD = "1234567890"  # Set your MySQL password
-    DB_NAME = "sharebite_db"
+    SECRET_KEY = os.getenv("SECRET_KEY")
 
 def get_db_connection():
-    """Establish MySQL database connection"""
     try:
         connection = mysql.connector.connect(
-            host=Config.DB_HOST,
-            user=Config.DB_USER,
-            password=Config.DB_PASSWORD,
-            database=Config.DB_NAME
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME"),
+            port=os.getenv("DB_PORT")
         )
-        return connection
+        if connection.is_connected():
+            return connection
     except Error as e:
-        print(f"Database connection failed: {e}")
+        print(f"❌ Database connection failed: {e}")
         return None
 
 def init_database():
-    """Initialize tables if they don't exist"""
-    connection = get_db_connection()
-    if connection:
+    try:
+        connection = get_db_connection()
+        if not connection:
+            print("❌ Cannot initialize database: No connection.")
+            return
+        
         cursor = connection.cursor()
 
         # Create users table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(100) UNIQUE NOT NULL,
-                email VARCHAR(150) UNIQUE NOT NULL,
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
-        # Create food donations table
+        # Create food_donations table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS food_donations (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                food_name VARCHAR(200) NOT NULL,
-                quantity VARCHAR(50) NOT NULL,
-                location VARCHAR(255) NOT NULL,
-                contact_info VARCHAR(255) NOT NULL,
-                donor_id INT NOT NULL,
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                food_name VARCHAR(100) NOT NULL,
+                quantity VARCHAR(50),
+                location VARCHAR(255),
+                contact_info VARCHAR(255),
+                donor_id INT,
                 is_claimed BOOLEAN DEFAULT FALSE,
-                claimed_by INT DEFAULT NULL,
+                claimed_by INT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (donor_id) REFERENCES users(id)
             )
@@ -58,3 +63,6 @@ def init_database():
         connection.commit()
         cursor.close()
         connection.close()
+        print("✅ Database initialized successfully.")
+    except Error as e:
+        print(f"❌ Failed to initialize database: {e}")
