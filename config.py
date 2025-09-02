@@ -1,23 +1,20 @@
-import os
 import mysql.connector
 from mysql.connector import Error
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    SECRET_KEY = "your_secret_key_here"  # Replace with your actual secret key
 
 def get_db_connection():
     try:
+        # Directly hardcoding the database credentials here
         connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-            port=os.getenv("DB_PORT")
+            host="localhost",        # Change if using remote DB
+            user="root",             # Your MySQL username
+            password="1234567890",# Your MySQL password
+            database="sharebite_db", # Your database name
+            port=3306                # Default MySQL port
         )
+
         if connection.is_connected():
             return connection
     except Error as e:
@@ -30,7 +27,7 @@ def init_database():
         if not connection:
             print("❌ Cannot initialize database: No connection.")
             return
-        
+
         cursor = connection.cursor()
 
         # Create users table
